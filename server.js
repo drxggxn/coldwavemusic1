@@ -1,17 +1,30 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const releaseRoutes = require('./routes/releaseRoutes'); // Маршруты для работы с релизами
-const protect = require('./middleware/authMiddleware'); // Миддлвар для защиты маршрутов
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const releaseRoutes = require('./routes/releaseRoutes'); // Маршруты для работы с релизами
+const authRoutes = require('./routes/authRoutes'); // Маршруты для аутентификации
+const protect = require('./middleware/authMiddleware'); // Миддлвар для защиты маршрутов
 const upload = require('./middleware/uploadMiddleware'); // Миддлвар для загрузки файлов
-require('dotenv').config(); // Подключение переменных окружения
 
 const app = express();
 
-// Подключение к базе данных MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Подключено к базе данных'))
-    .catch(err => console.log(err));
+// Создание или подключение к базе данных SQLite
+const db = new sqlite3.Database('./database.db', (err) => {
+    if (err) {
+        console.error('Ошибка подключения к базе данных:', err);
+        process.exit(1);
+    } else {
+        console.log('Подключено к базе данных SQLite');
+    }
+});
+
+// Создание таблицы пользователей, если она не существует
+db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    email TEXT UNIQUE,
+    password TEXT
+)`);
 
 // Использование JSON тела в запросах
 app.use(express.json());
@@ -26,6 +39,9 @@ app.get('/', (req, res) => {
 
 // Подключение маршрутов для работы с релизами
 app.use('/releases', releaseRoutes);
+
+// Подключение маршрутов для аутентификации
+app.use('/auth', authRoutes);
 
 // Пример защищенного маршрута
 app.get('/dashboard', protect, (req, res) => {

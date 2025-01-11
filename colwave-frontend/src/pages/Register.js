@@ -1,31 +1,32 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
-function Register() {
+const Register = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const history = useHistory();
 
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', { email, password, name });
-      alert('Регистрация успешна! Вы можете войти в систему.');
+      await axios.post('http://localhost:5000/auth/register', { username, email, password });
+      history.push('/login');
     } catch (error) {
-      console.error('Ошибка регистрации', error);
+      console.error('Error registering:', error);
     }
   };
 
   return (
     <div>
-      <h2>Регистрация</h2>
-      <form onSubmit={handleRegister}>
+      <h1>Register</h1>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Имя"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <input
           type="email"
@@ -35,14 +36,14 @@ function Register() {
         />
         <input
           type="password"
-          placeholder="Пароль"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit">Register</button>
       </form>
     </div>
   );
-}
+};
 
 export default Register;
