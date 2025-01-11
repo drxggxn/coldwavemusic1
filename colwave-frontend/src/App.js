@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,11 +8,12 @@ import PrivateRoute from './components/PrivateRoute'; // Импортируем 
 function App() {
   return (
     <Router>
-      <Switch>
-        <PrivateRoute path="/dashboard" component={Dashboard} />
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<h1>Home Page</h1>} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
     </Router>
   );
 }
